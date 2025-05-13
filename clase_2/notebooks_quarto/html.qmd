@@ -1,0 +1,15 @@
+---
+title: "En esta lección vamos a hablar más acerca de HTML"
+author: "Fabricio Lennart Flores Ledezma"
+date: "2025-05-12"
+format: html
+---
+
+
+# En esta leccion vamos a hablar mas acerca de html y de por que nos interesa saber mas acerca de este lenguaje de marcado
+
+
+```{python}
+print("hello world")
+
+```

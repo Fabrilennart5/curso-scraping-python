@@ -1,0 +1,83 @@
+---
+title: "Proceso de scaping"
+author: "Fabricio Lennart Flores Ledezma"
+date: "2025-05-12"
+format: html
+---
+
+
+# Antes de scrapear un sitio web es importante que sepamos utilizar una herramienta que viene con cualquier navegador, esta herramienta se llama "Inspeccionar Elementos".
+
+# Esta herramienta nos permite analizar el código HTML y CSS de una página web para identificar los elementos que queremos extraer. La pagina que usaremos es la siguiente = https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population
+
+
+# manejamos los posibles errores con los codigos de respuesta que podemos obtener, como:
+# 200, 400 5000 etc (se pueden y se deben de agregar mas).
+
+```{python}
+# hacemos la solicitud y verificamos si fue exitosa
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population"
+respuesta = requests.get(url)
+print(respuesta)
+
+if respuesta.status_code == 200:
+    print("repuesta exitosa")
+
+elif respuesta.status_code == 400:
+    print("fallo en la web")
+
+else:
+    print("asegurese de que la url sea valida")
+
+# Paso 2: Crear el objeto BeautifulSoup
+soup = BeautifulSoup(respuesta.text, "html.parser")
+
+# Paso 3: Encontrar el primer <tbody> 
+tbody = soup.find("tbody")
+
+# Paso 4: creamos un diccionario para insertar las filas en el.
+datos = []
+
+# Paso 4: Iterar sobre las filas y columnas e insertarlas en mi diccionario.
+for fila in tbody.find_all("tr"):
+    celdas = fila.find_all("td")
+    fila = [celda.get_text(strip=True) for celda in celdas]
+    datos.append(fila)
+
+# revisamos los datos
+print(datos)
+```
+
+# ahora creamos un objeto soup o beautiful para aceder al elemento, sabemos que estamos buscando una tabla dentro del html y eso se identifica con la etiqueta <td>[]
+
+# ya que tenemos los datos podemos guardarlos en una tabla para procesarlos en memoria para hacer esto usaremos duckdb
+
+```{python}
+import duckdb as duckdb
+
+# Creamos una base de datos
+con = duckdb.connect('my_database.db')
+
+# creamos una tabla dentro de esa base de datos
+# Create a new table
+con.execute("""
+CREATE TABLE paises (
+    location VARCHAR,
+    population INTEGER,
+    pocentage_world VARCHAR
+);
+""")
+```
+
+# ahora que ya tenemos una tabla en una base de datos y tenemos tambien las filas que nos interesa lo siguiente es insertar esas filas en nuestra tabla teniendo en cuenta que los datos crudos tienen 5 columnas y nuestra tabla tiene 3 columnas.
+
+```{python}
+print(f"estos son los datos {datos}")
+
+for i in datos:
+    print(i)
+
+```
